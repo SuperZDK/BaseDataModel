@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>综合模型 v3.0 — 使用说明</title>
+<style>
+  body { font-family: -apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; background: #c7edcc; color: #2c3e2d; padding: 30px 20px; }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 26px; color: #b84a5a; margin-bottom: 4px; }
+  .sub { text-align: center; font-size: 13px; color: #6a8b6b; margin-bottom: 28px; }
+  h2 { font-size: 18px; color: #4a7b6a; margin: 28px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #a8c8ac; }
+  h3 { font-size: 15px; color: #2c3e2d; margin: 20px 0 8px; }
+  p { font-size: 14px; line-height: 1.8; margin: 8px 0; }
+  .field-box { background: #d8f0dc; border: 1px solid #a8c8ac; border-radius: 8px; padding: 16px; margin: 12px 0; }
+  .field-box .label { font-size: 12px; color: #6a8b6b; margin-bottom: 2px; }
+  .field-box .name { font-size: 16px; font-weight: 700; color: #2c3e2d; }
+  .field-box .desc { font-size: 13px; color: #4a6b4b; margin-top: 4px; }
+  .field-box .example { font-size: 12px; color: #8a9a8a; margin-top: 4px; font-style: italic; }
+  .demo { background: #eef6ef; border: 1px solid #b8d4bc; border-radius: 8px; padding: 14px; margin: 10px 0; }
+  .demo .l1 { font-size: 22px; font-weight: 700; }
+  .demo .l2 { font-size: 22px; font-weight: 700; }
+  .demo .meta { font-size: 12px; color: #6a8b6b; margin-top: 4px; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .tag-g { background: #d4e8d4; color: #2d8a4e; }
+  .tag-o { background: #f5e8c8; color: #8a6a10; }
+  .tag-r { background: #f0d8d4; color: #b84a3a; }
+  .chaos { display: inline-block; width: 1.3em; height: 1.3em; border-radius: 50%; border: 2px solid #b84a3a; color: #b84a3a; font-size: 11px; font-weight: 700; text-align: center; line-height: 1.3em; }
+  .warn { color: #b84a3a; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+  th, td { border: 1px solid #a8c8ac; padding: 8px 10px; text-align: left; }
+  th { background: #c7edcc; font-weight: 600; color: #2c3e2d; }
+  td { background: #eef6ef; }
+  ul { font-size: 14px; line-height: 1.8; padding-left: 20px; }
+  li { margin: 4px 0; }
+  .step { background: #eef6ef; border-left: 4px solid #4a7b6a; padding: 12px 16px; margin: 10px 0; border-radius: 0 6px 6px 0; }
+  .step-num { font-weight: 700; color: #4a7b6a; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>综合模型 v3.0 使用说明</h1>
+<p class="sub">积分模型 v7.0 + 近期战绩模型 v1.0 — 分步操作指南</p>
+
+<h2>一、工具概述</h2>
+<p>
+综合模型 v3.0 是一个英超比赛分析工具，它将 <strong>积分模型</strong>（基于全赛季PPG判断球队长期实力差距）和 <strong>近期战绩模型</strong>（基于近4场结果判断短期状态）合并展示。
+</p>
+<p>
+你输入两队的基本数据，工具自动计算并在同一屏幕展示两行综合结果：第一行是矩阵判定的方向，第二行是积分和战绩的具体情况。所有计算逻辑封在工具内部，你在网页上直接操作，不需要手动查表。
+</p>
+
+<hr style="border:none;border-top:2px solid #a8c8ac;margin:24px 0;">
+
+<h2>二、输入数据详解</h2>
+
+<h3>2.1 主队 / 客队 信息卡</h3>
+<p>左右两栏结构，主队和客队的输入项完全对称。以下以主队为例说明。</p>
+
+<div class="field-box">
+  <div class="label">输入框 ①</div>
+  <div class="name">队名（选填）</div>
+  <div class="desc">仅用于结果显示中标注是哪支球队。不填写时工具自动显示"主队"或"客队"。不影响任何计算。</div>
+  <div class="example">示例：曼城</div>
+</div>
+
+<div class="field-box">
+  <div class="label">输入框 ②</div>
+  <div class="name">上赛季积分</div>
+  <div class="desc">
+    <strong>上赛季英超总积分</strong>。用于计算"先验PPG"，即赛季开始前对该队实力的初始估计。
+    <br><br>
+    <strong>升班马</strong>（上赛季在英冠，无英超积分可查）：填 0。工具会在R≤10时自动使用"升班马参照PPG"（默认1.05）作为先验。R>10后升班马参照不再生效，完全依赖本赛季实际数据。
+  </div>
+  <div class="example">示例：曼城上赛季84分 → 填 84。升班马 → 填 0。</div>
+</div>
+
+<div class="field-box">
+  <div class="label">输入框 ③</div>
+  <div class="name">当前积分</div>
+  <div class="desc">
+    <strong>本赛季截至当前轮次的累计积分</strong>。用于计算"当前PPG"。
+    <br>
+    注意：填的是 <strong>总积分</strong>，不是场均分。例如前18轮拿了42分就填42。
+  </div>
+  <div class="example">示例：利物浦18轮42分 → 填 42。</div>
+</div>
+
+<div class="field-box">
+  <div class="label">输入框 ④</div>
+  <div class="name">已赛场次</div>
+  <div class="desc">
+    <strong>本赛季已踢的联赛场次数</strong>。用于将当前积分转为PPG（当前积分 ÷ 已赛场次 = 当前PPG）。
+    <br>
+    如果本场是第19轮且都踢了，已赛场次 = 当前轮次 - 1（如果当前轮已踢完则 = 已赛场次 = 当前轮次）。实际上，只要填你查到的该队真实已赛场次即可。
+  </div>
+  <div class="example">示例：第19轮，两队都踢了18场 → 填 18。</div>
+</div>
+
+<div class="field-box">
+  <div class="label">下拉菜单 ⑤</div>
+  <div class="name">近4场（近1 / 近2 / 近3 / 近4）</div>
+  <div class="desc">
+    <strong>该队最近4场联赛的结果</strong>，从近1（最近一场）到近4（4场前），按时间倒序排列。
+    <br><br>
+    每场三个选项：
+    <ul>
+      <li><strong>胜</strong> — 该场赢球，赋值5分</li>
+      <li><strong>平</strong> — 该场打平，赋值2分</li>
+      <li><strong>负</strong> — 该场输球，赋值0分</li>
+    </ul>
+    工具将4场得分相加得到该队的"战绩分"（范围0~20）。积分模型用战绩分差=主队总分-客队总分来判断短期状态优劣。
+  </div>
+  <div class="example">示例：最近4场胜负负胜 → 近1=胜, 近2=负, 近3=负, 近4=胜</div>
+</div>
+
+<h3>2.2 全局参数</h3>
+
+<div class="field-box">
+  <div class="label">输入框 ⑥</div>
+  <div class="name">当前轮次 (R)</div>
+  <div class="desc">
+    <strong>当前比赛的轮次</strong>。决定了积分模型中"先验PPG"和"当前PPG"的权重分配：
+    <ul>
+      <li>R ≤ 4：完全使用先验PPG（上赛季数据），本赛季数据太少，不可靠</li>
+      <li>R = 5：80%先验 + 20%当前</li>
+      <li>R = 6：60%先验 + 40%当前</li>
+      <li>R = 7：40%先验 + 60%当前</li>
+      <li>R = 8：20%先验 + 80%当前</li>
+      <li>R ≥ 9：完全使用当前PPG（本赛季数据已足够）</li>
+    </ul>
+    同时 R 也控制升班马参照PPG是否生效（仅R≤10时有效）。
+  </div>
+  <div class="example">示例：第19轮比赛 → 填 19</div>
+</div>
+
+<div class="field-box">
+  <div class="label">输入框 ⑦</div>
+  <div class="name">联赛总轮次</div>
+  <div class="desc">
+    <strong>英超固定为38</strong>。用于将PPG换算为38轮等效分差。不需要改。
+  </div>
+  <div class="example">固定值：38</div>
+</div>
+
+<div class="field-box">
+  <div class="label">输入框 ⑧</div>
+  <div class="name">升班马参照PPG（R≤10生效）</div>
+  <div class="desc">
+    <strong>给升班马（上赛季积分=0的球队）使用的先验PPG默认值</strong>。
+    <br><br>
+    原理：升班马上赛季不在英超，没有英超积分数据。如果R≤10，工具用这个值作为他们的"先验实力估计"，避免赛季初被低估。
+    <br><br>
+    默认值1.05来自英超升班马的历年平均水平（约等于保级挣扎区中游）。<strong>通常不需要改</strong>，除非你有特定赛季的统计想自己试。
+    <br><br>
+    R>10后升班马已有至少11场数据，该值自动失效，先验PPG归0。
+  </div>
+  <div class="example">默认值：1.05</div>
+</div>
+
+<hr style="border:none;border-top:2px solid #a8c8ac;margin:24px 0;">
+
+<h2>三、输出结果解读</h2>
+
+<p>点击"计算综合输出"按钮后，结果区域从上到下依次展示以下几部分：</p>
+
+<h3>3.1 对阵表头</h3>
+<p>显示"主队名 VS 客队名"，来自你填的队名。仅做标识，无计算结果。</p>
+
+<h3>3.2 综合输出（两行核心结果）</h3>
+
+<p><strong>第1行：矩阵方向（附加说明）</strong></p>
+<ul>
+  <li>前半部分是<strong>矩阵综合判定</strong>，共9级：主巨大 / 主明显 / 主优势 / 倾向主 / 均势 / 倾向客 / 客优势 / 客明显 / 客巨大</li>
+  <li>后半部分括号内是<strong>附加说明</strong>，取决于积分是否有差距：</li>
+</ul>
+
+<p><strong>第2行：积分情况 | 战绩情况</strong></p>
+<ul>
+  <li><strong>积分[等级]</strong> — 来自积分模型档位名：超优（档5）、明显（档4）、较优（档3）、略优（档2）、同等（档1）、同分（档0）</li>
+  <li><strong>战绩[优劣]</strong> — 来自战绩模型分差的等级：巨大优势/明显优势/优势/轻微优势/均势/轻微劣势/劣势/明显劣势/巨大劣势</li>
+  <li>末尾如有 <span class="warn">⚠</span> — 表示积分优势方的战绩方向与积分方向相反，产生冲突</li>
+</ul>
+
+<p><strong>两种显示模式：</strong></p>
+
+<div class="step">
+<div class="step-num">模式A：积分有差距（档位2~5）</div>
+<p>括号内显示<strong>积分优势方的队名</strong>。第2行显示该队的积分等级和战绩优劣。</p>
+<div class="demo">
+  <div class="l1">主巨大（曼城）</div>
+  <div class="l2">积分超优 | 战绩巨大优势</div>
+  <div class="meta">✓ 曼城积分超优（档5），战绩也是巨大优势，方向一致，无⚠</div>
+</div>
+<div class="demo">
+  <div class="l1">均势（曼城） <span class="chaos">乱</span></div>
+  <div class="l2">积分超优 | 战绩巨大劣势 <span class="warn">⚠</span></div>
+  <div class="meta">⚠ 曼城积分超优但战绩巨大劣势，方向严重冲突，矩阵判定为混乱</div>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num">模式B：积分均势（档位0~1）</div>
+<p>括号内显示"积分均势"。第2行显示<strong>主队</strong>的战绩情况。</p>
+<div class="demo">
+  <div class="l1">主优势（积分均势）</div>
+  <div class="l2">主队战绩优势</div>
+  <div class="meta">✓ 两队积分接近，但主队近4场状态占优，矩阵判定倾向于主</div>
+</div>
+<div class="demo">
+  <div class="l1">客巨大（积分均势）</div>
+  <div class="l2">主队战绩巨大劣势</div>
+  <div class="meta">✓ 积分均势，但主队近4场惨淡，矩阵判定为客巨大</div>
+</div>
+</div>
+
+<h3>3.3 标记区（第2行下方）</h3>
+<p>可能出现以下圆角标签，每个标签一种颜色，一眼可知：</p>
+
+<table>
+  <tr><th>标记</th><th>含义</th><th>何时出现</th><th>怎么处理</th></tr>
+  <tr>
+    <td><span class="chaos">乱</span></td>
+    <td>矩阵判定为"混乱"</td>
+    <td>积分方向与战绩方向严重冲突，矩阵无法给出明确方向</td>
+    <td>说明这场比赛两个模型指向完全相反，建议你结合其他信息手动分析</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-g">[++] 双高</span></td>
+    <td>两队近期状态都很好</td>
+    <td>两队近4场得分均≥15（即至少3胜或2胜2平）</td>
+    <td>比赛可能进账比较多，双方都在状态</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-o">[--] 双低</span></td>
+    <td>两队近期状态都很差</td>
+    <td>两队近4场得分均≤5（即4场最多1胜或1平3负）</td>
+    <td>比赛可能沉闷或不确定性高，两队都在低迷期</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-o">⚠️ 场次差=3</span></td>
+    <td>两队已赛场次差距≥2</td>
+    <td>如主队踢了18场、客队踢了15场，场次差=3</td>
+    <td>当前PPG的可比性降低。场次差越大，PPG数据的时效性差异越明显</td>
+  </tr>
+</table>
+
+<h3>3.4 积分档位与PPG数值</h3>
+<p>显示两队有效PPG（经过线性过渡后的最终PPG值）和积分档位（0~5的彩色徽章）。这些是积分模型的原始计算结果。可以作为调试参考。</p>
+
+<h3>3.5 详细计算过程</h3>
+<p>最下方灰色文字区域，逐行展示积分模型和战绩模型的详细中间值，包括：</p>
+<ul>
+  <li>积分模型：档位、等效分差、先验PPG、当前PPG、升班马标注</li>
+  <li>战绩模型：每场胜负中文显示、总分、分差、战绩等级</li>
+  <li>综合输出：两行结果的文字副本</li>
+</ul>
+
+<hr style="border:none;border-top:2px solid #a8c8ac;margin:24px 0;">
+
+<h2>四、完整操作流程示例</h2>
+
+<h3>示例：曼城 vs 诺维奇（第19轮）</h3>
+
+<div class="step">
+<span class="step-num">步骤1：填主队信息</span><br>
+队名：曼城<br>
+上赛季积分：89（夺冠赛季积分）<br>
+当前积分：44（19轮44分）<br>
+已赛场次：18<br>
+近4场：近1=负, 近2=负, 近3=负, 近4=负（4连败）<br>
+</div>
+
+<div class="step">
+<span class="step-num">步骤2：填客队信息</span><br>
+队名：诺维奇<br>
+上赛季积分：0（升班马）<br>
+当前积分：12<br>
+已赛场次：18<br>
+近4场：近1=胜, 近2=胜, 近3=胜, 近4=胜（4连胜）<br>
+</div>
+
+<div class="step">
+<span class="step-num">步骤3：填全局参数</span><br>
+当前轮次：19<br>
+联赛总轮次：38<br>
+升班马参照PPG：1.05（默认，R=19>10不生效）<br>
+</div>
+
+<div class="step">
+<span class="step-num">步骤4：点击"计算综合输出"</span>
+</div>
+
+<p><strong>预期输出：</strong></p>
+
+<div class="demo">
+  <div class="l1">主优势（曼城）</div>
+  <div class="l2">积分超优 | 战绩巨大劣势 <span class="warn">⚠</span></div>
+</div>
+
+<p><strong>解读：</strong></p>
+<ul>
+  <li>矩阵判定为"主优势"——虽然曼城4连败，但积分超优（档5）压住了短期状态劣势，矩阵倾向主</li>
+  <li>但⚠标记提示：积分优势方（曼城）的积分超优和战绩巨大劣势是方向冲突的</li>
+  <li>这意味着曼城实力确实强于诺维奇，但近期状态极差，诺维奇反而势头正猛</li>
+  <li>结论是"方向冲突"——建议你结合伤病、赛程等信息做人工判断</li>
+</ul>
+
+<hr style="border:none;border-top:2px solid #a8c8ac;margin:24px 0;">
+
+<h2>五、常见问题</h2>
+
+<h3>Q1：两队已赛场次不同怎么处理？</h3>
+<p>直接填各自的实际场次即可。工具会分别计算各队的PPG。当场次差≥2时，自动显示 ⚠️ 场次差标记，提示两队数据可比性下降。</p>
+
+<h3>Q2：升班马的第一场英超比赛怎么填？</h3>
+<p>已赛场次填0，当前积分填0，上赛季积分填0。工具在R≤4时会完全使用升班马参照PPG（默认1.05）作为有效PPG。</p>
+
+<h3>Q3：中途换帅的球队怎么处理？</h3>
+<p>综合模型不做换帅专项处理。换帅的影响会体现在近4场战绩中——如果换帅后战绩明显改善，战绩模型会捕捉到。积分的长期实力部分则需要多场比赛才能体现变化。</p>
+
+<h3>Q4：输出结果中的"乱"和"⚠"有什么区别？</h3>
+<ul>
+  <li><strong>乱</strong>：矩阵判定层面的标记。当积分方向与战绩方向冲突到矩阵无法给出明确判断时，矩阵输出"均势"并打上"乱"标签</li>
+  <li><strong>⚠</strong>：注释层面的标记。当积分优势方的战绩方向与积分方向相反时（即使矩阵还能给出方向），在注释行末尾加⚠提示</li>
+  <li>两者可能同时出现，也可能只出现其中一个</li>
+</ul>
+
+<h3>Q5：这个工具能直接告诉我"买谁赢"吗？</h3>
+<p>不能。综合模型的设计初衷是<strong>展示信息</strong>，不是给出投注建议。两个模型独立展示，冲突情况用⚠标注，最终由你做决策。工具的目标是量化你的思考过程，不是替代你的判断。</p>
+
+</div>
+</body>
+</html>

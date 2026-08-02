@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>综合矩阵 v4.0 — 54格全览（优势方视角 + 镜像）待审稿</title>
+<style>
+  :root {
+    --bg: #c7edcc; --surface: #d8f0dc; --surface2: #e3f5e6; --surface3: #eef9ef;
+    --text: #2c3e2d; --text2: #4a6b4b; --text3: #6a8b6b;
+    --accent: #b84a5a; --accent2: #4a7b6a; --blue: #2a6b8a; --red: #b84a3a;
+    --orange: #b87a30; --border: #a8c8ac;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; padding:24px 20px 60px; }
+  .container { max-width:1080px; margin:0 auto; }
+  h1 { font-size:24px; color:var(--accent); border-left:4px solid var(--accent); padding-left:14px; margin:24px 0 6px; }
+  .sub { color:var(--text3); font-size:13px; margin-bottom:20px; padding-left:18px; }
+  h2 { font-size:19px; color:var(--accent2); margin:32px 0 12px; padding-bottom:6px; border-bottom:2px solid var(--border); }
+  h3 { font-size:15px; color:var(--blue); margin:18px 0 8px; }
+  p, li { font-size:14px; }
+  table { width:100%; border-collapse:collapse; margin:10px 0 18px; font-size:13px; }
+  th { background:var(--surface2); color:var(--text2); font-weight:600; padding:8px 10px; border:1px solid var(--border); text-align:left; }
+  td { padding:7px 10px; border:1px solid var(--border); }
+  tr:nth-child(even) td { background:var(--surface3); }
+  .tier-hd { background:var(--surface) !important; font-weight:700; }
+  .flag { background:#f5d8d4 !important; color:var(--red); font-weight:600; }
+  .chaos { display:inline-block; width:1.3em; height:1.3em; border-radius:50%; border:2px solid var(--red); color:var(--red); font-size:11px; font-weight:700; text-align:center; line-height:1.3em; }
+  .tag { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:600; }
+  .tag-g { background:#d4e8d4; color:#2d8a4e; }
+  .tag-o { background:#f5e8c8; color:#8a6a10; }
+  .box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 18px; margin:12px 0; }
+  .warn { color:var(--red); font-weight:700; }
+  .note { background:var(--surface2); border-left:3px solid var(--orange); padding:10px 14px; font-size:13px; color:var(--text2); margin:12px 0; }
+  .step { background:var(--surface3); border-left:4px solid var(--accent2); padding:12px 16px; margin:10px 0; border-radius:0 8px 8px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>综合矩阵 v4.0 — 54格全览（待审稿）</h1>
+<p class="sub">优势方视角 + 镜像 + 档位0单列 · 基于综合模型v1.0矩阵重定义 · 2026-08-01</p>
+
+<div class="note">
+  <strong>阅读说明：</strong>档位1-5 采用<strong>优势方视角</strong>（矩阵只写"相对优势方"的状态与输出，不再写死主/客），镜像规则把相对输出翻译成绝对主/客。
+  档位0 无优势方，<strong>单列</strong>为绝对视角。<span class="warn">标红格 = 疑似逻辑倒挂</span>，是你修改54格的重点。双高/双低为纯标签，不占格子、不改方向。
+</div>
+
+<h2>一、镜像翻译规则（档位1-5）</h2>
+<table>
+  <tr><th>相对输出</th><th>优势方=主队</th><th>优势方=客队</th></tr>
+  <tr><td>优势方巨大</td><td>主巨大</td><td>客巨大</td></tr>
+  <tr><td>优势方明显</td><td>主明显</td><td>客明显</td></tr>
+  <tr><td>优势方优势</td><td>主优势</td><td>客优势</td></tr>
+  <tr><td>倾向优势方</td><td>倾向主</td><td>倾向客</td></tr>
+  <tr><td>均势</td><td>均势</td><td>均势</td></tr>
+  <tr><td>倾向劣势方</td><td>倾向客</td><td>倾向主</td></tr>
+  <tr><td>劣势方优势</td><td>客优势</td><td>主优势</td></tr>
+  <tr><td>劣势方明显</td><td>客明显</td><td>主明显</td></tr>
+  <tr><td>劣势方巨大</td><td>客巨大</td><td>主巨大</td></tr>
+</table>
+
+<h2>二、档位1-5 矩阵（9状态 × 5档 = 45格）</h2>
+
+<h3>档位5 — 超优（PPG差 &gt; 1.10）</h3>
+<table>
+  <tr><th>战绩状态（相对优势方）</th><th>相对输出</th><th>优势方=主队</th><th>优势方=客队</th><th>备注</th></tr>
+  <tr><td>同向·巨大</td><td>优势方巨大</td><td>主巨大</td><td>客巨大</td><td></td></tr>
+  <tr><td>同向·明显</td><td>优势方巨大</td><td>主巨大</td><td>客巨大</td><td></td></tr>
+  <tr><td>同向·优势</td><td>优势方明显</td><td>主明显</td><td>客明显</td><td></td></tr>
+  <tr><td>同向·轻微</td><td>优势方明显</td><td>主明显</td><td>客明显</td><td></td></tr>
+  <tr><td>均势</td><td>优势方优势</td><td>主优势</td><td>客优势</td><td></td></tr>
+  <tr><td>反向·轻微</td><td>优势方优势</td><td>主优势</td><td>客优势</td><td></td></tr>
+  <tr><td>反向·优势</td><td>优势方优势</td><td>主优势</td><td>客优势</td><td></td></tr>
+  <tr><td>反向·明显</td><td>倾向优势方</td><td>倾向主</td><td>倾向客</td><td></td></tr>
+  <tr><td>反向·巨大</td><td>倾向优势方</td><td>倾向主</td><td>倾向客</td><td></td></tr>
+</table>
+
+<h3>档位4 — 明显优势（PPG差 0.60~1.10）</h3>
+<table>
+  <tr><th>战绩状态（相对优势方）</th><th>相对输出</th><th>优势方=主队</th><th>优势方=客队</th><th>备注</th></tr>
+  <tr><td>同向·巨大</td><td>优势方巨大</td><td>主巨大</td><td>客巨大</td><td></td></tr>
+  <tr><td>同向·明显</td><td>优势方明显</td><td>主明显</td><td>客明显</td><td></td></tr>
+  <tr><td>同向·优势</td><td>优势方优势</td><td>主优势</td><td>客优势</td><td></td></tr>
+  <tr class="flag"><td>同向·轻微</td><td>倾向优势方</td><td>倾向主</td><td>倾向客</td><td class="warn">⚠ 倒挂：弱于"均势"，同向越强输出应越强</td></tr>
+  <tr class="flag"><td>均势</td><td>优势方优势</td><td>主优势</td><td>客优势</td><td class="warn">⚠ 异常：与"反向·轻微"同级，却强于"同向·轻微"</td></tr>
+  <tr class="flag"><td>反向·轻微</td><td>优势方优势</td><td>主优势</td><td>客优势</td><td class="warn">⚠ 异常：反向轻微不应与均势同级</td></tr>
+  <tr><td>反向·优势</td><td>倾向优势方</td><td>倾向主</td><td>倾向客</td><td></td></tr>
+  <tr><td>反向·明显</td><td>倾向优势方</td><td>倾向主</td><td>倾向客</td><td></td></tr>
+  <tr><td>反向·巨大</td><td>均势</td><td>均势</td><td>均势</td><td><span class="chaos">乱</span></td></tr>
+</table>
+
+<h3>档位3 — 较优（PPG差 0.30~0.60）</h3>
+<table>
+  <tr><th>战绩状态（相对优势方）</th><th>相对输出</th><th>优势方=主队</th><th>优势方=客队</th><th>备注</th></tr>
+  <tr><td>同向·巨大</td><td>优势方明显</td><td>主明显</td><td>客明显</td><td></td></tr>
+  <tr><td>同向·明显</td><td>优势方优势</td><td>主优势</td><td>客优势</td><td></td></tr>
+  <tr><td>同向·优势</td><td>优势方优势</td><td>主优势</td><td>客优势</td><td></td></tr>
+  <tr class="flag"><td>同向·轻微</td><td>倾向优势方</td><td>倾向主</td><td>倾向客</td><td class="warn">⚠ 倒挂：弱于"均势"</td></tr>
+  <tr class="flag"><td>均势</td><td>优势方优势</td><td>主优势</td><td>客优势</td><td class="warn">⚠ 异常：均势反而强于"同向·轻微"</td></tr>
+  <tr><td>反向·轻微</td><td>倾向优势方</td><td>倾向主</td><td>倾向客</td><td></td></tr>
+  <tr><td>反向·优势</td><td>均势</td><td>均势</td><td>均势</td><td><span class="chaos">乱</span></td></tr>
+  <tr><td>反向·明显</td><td>倾向劣势方</td><td>倾向客</td><td>倾向主</td><td></td></tr>
+  <tr><td>反向·巨大</td><td>劣势方优势</td><td>客优势</td><td>主优势</td><td></td></tr>
+</table>
+
+<h3>档位2 — 略优（PPG差 0.12~0.30）</h3>
+<table>
+  <tr><th>战绩状态（相对优势方）</th><th>相对输出</th><th>优势方=主队</th><th>优势方=客队</th><th>备注</th></tr>
+  <tr><td>同向·巨大</td><td>优势方明显</td><td>主明显</td><td>客明显</td><td></td></tr>
+  <tr><td>同向·明显</td><td>优势方明显</td><td>主明显</td><td>客明显</td><td></td></tr>
+  <tr><td>同向·优势</td><td>优势方优势</td><td>主优势</td><td>客优势</td><td></td></tr>
+  <tr><td>同向·轻微</td><td>优势方优势</td><td>主优势</td><td>客优势</td><td></td></tr>
+  <tr><td>均势</td><td>倾向优势方</td><td>倾向主</td><td>倾向客</td><td></td></tr>
+  <tr><td>反向·轻微</td><td>倾向优势方</td><td>倾向主</td><td>倾向客</td><td></td></tr>
+  <tr><td>反向·优势</td><td>均势</td><td>均势</td><td>均势</td><td><span class="chaos">乱</span></td></tr>
+  <tr><td>反向·明显</td><td>倾向劣势方</td><td>倾向客</td><td>倾向主</td><td></td></tr>
+  <tr><td>反向·巨大</td><td>劣势方优势</td><td>客优势</td><td>主优势</td><td></td></tr>
+</table>
+
+<h3>档位1 — 同等偏主/偏客（PPG差 0.01~0.12，小积分优势也算优势）</h3>
+<table>
+  <tr><th>战绩状态（相对优势方）</th><th>相对输出</th><th>优势方=主队</th><th>优势方=客队</th><th>备注</th></tr>
+  <tr class="flag"><td>同向·巨大</td><td>倾向优势方</td><td>倾向主</td><td>倾向客</td><td class="warn">⚠ 倒挂：弱于"同向·优势"，违背"小积分优势也是优势"</td></tr>
+  <tr class="flag"><td>同向·明显</td><td>倾向优势方</td><td>倾向主</td><td>倾向客</td><td class="warn">⚠ 倒挂：同上</td></tr>
+  <tr><td>同向·优势</td><td>优势方优势</td><td>主优势</td><td>客优势</td><td></td></tr>
+  <tr><td>同向·轻微</td><td>优势方优势</td><td>主优势</td><td>客优势</td><td></td></tr>
+  <tr><td>均势</td><td>均势</td><td>均势</td><td>均势</td><td></td></tr>
+  <tr><td>反向·轻微</td><td>均势</td><td>均势</td><td>均势</td><td></td></tr>
+  <tr><td>反向·优势</td><td>倾向劣势方</td><td>倾向客</td><td>倾向主</td><td></td></tr>
+  <tr><td>反向·明显</td><td>劣势方优势</td><td>客优势</td><td>主优势</td><td></td></tr>
+  <tr><td>反向·巨大</td><td>劣势方优势</td><td>客优势</td><td>主优势</td><td></td></tr>
+</table>
+
+<h2>三、档位0 — 同分（PPG差 = 0）单列 · 绝对视角（9格）</h2>
+<div class="note">档位0 无优势方，不设镜像。输出方向由战绩分差绝对方向决定（主/客）。双高[++]/双低[--]为纯标签附加其上，不改变方向。</div>
+<table>
+  <tr><th>战绩状态（绝对主/客）</th><th>绝对输出</th><th>备注</th></tr>
+  <tr><td>主巨大</td><td>主优势</td><td></td></tr>
+  <tr><td>主明显</td><td>主优势</td><td></td></tr>
+  <tr><td>主优势</td><td>主优势</td><td></td></tr>
+  <tr><td>主轻微</td><td>主优势</td><td></td></tr>
+  <tr><td>均势</td><td>均势</td><td>如双方均≥15 → [++]，双方均≤5 → [--]</td></tr>
+  <tr><td>客轻微</td><td>客优势</td><td></td></tr>
+  <tr><td>客优势</td><td>客优势</td><td></td></tr>
+  <tr><td>客明显</td><td>客优势</td><td></td></tr>
+  <tr><td>客巨大</td><td>客优势</td><td></td></tr>
+</table>
+
+<h2>四、修订原则（改54格时请遵守，避免改出新倒挂）</h2>
+<div class="box">
+  <ol>
+    <li><strong>横向单调</strong>（同档内）：同向输出 ≥ 均势 ≥ 反向输出</li>
+    <li><strong>同向单调</strong>：同向·巨大 ≥ 同向·明显 ≥ 同向·优势 ≥ 同向·轻微</li>
+    <li><strong>反向单调</strong>：反向·轻微 ≥ 反向·优势 ≥ 反向·明显 ≥ 反向·巨大（反向越大，输出越弱）</li>
+    <li><strong>跨档单调</strong>：档位越高，同状态输出越强（档5 同向·优势 应 ≥ 档4 同向·优势 ≥ …）</li>
+    <li>档位1 遵循"小积分优势也是优势"：同向·巨大 ≥ 同向·优势</li>
+  </ol>
+</div>
+
+<h2>五、待你确认的事项</h2>
+<div class="box">
+  <ul>
+    <li>档位4/3/2 中 <span class="chaos">乱</span> 的触发位置不一致（档4=反向巨大，档3/2=反向优势）——是有意设计还是需统一？</li>
+    <li>镜像验收用例3条：客队超优+同向→客巨大；主队超优+反向巨大→倾向主；积分均势+主队战绩优势→主优势。认可？</li>
+    <li>升班马参照值按"上赛季15-17名PPG均值"现算（不写死1.05）？</li>
+    <li>梯队映射 2.05~2.10 断层是否补齐？</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>综合矩阵 v4.0 — 镜像验收用例</title>
+<style>
+  :root {
+    --bg: #c7edcc; --surface: #d8f0dc; --surface2: #e3f5e6; --surface3: #eef9ef;
+    --text: #2c3e2d; --text2: #4a6b4b; --text3: #6a8b6b;
+    --accent: #b84a5a; --accent2: #4a7b6a; --blue: #2a6b8a; --red: #b84a3a;
+    --orange: #b87a30; --border: #a8c8ac;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; padding:24px 20px 60px; }
+  .container { max-width:1120px; margin:0 auto; }
+  h1 { font-size:24px; color:var(--accent); border-left:4px solid var(--accent); padding-left:14px; margin:24px 0 6px; }
+  .sub { color:var(--text3); font-size:13px; margin-bottom:20px; padding-left:18px; }
+  h2 { font-size:19px; color:var(--accent2); margin:32px 0 12px; padding-bottom:6px; border-bottom:2px solid var(--border); }
+  h3 { font-size:15px; color:var(--blue); margin:18px 0 8px; }
+  p, li { font-size:14px; }
+  table { width:100%; border-collapse:collapse; margin:10px 0 18px; font-size:13px; }
+  th { background:var(--surface2); color:var(--text2); font-weight:600; padding:8px 10px; border:1px solid var(--border); text-align:left; }
+  td { padding:7px 10px; border:1px solid var(--border); }
+  tr:nth-child(even) td { background:var(--surface3); }
+  .box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 18px; margin:12px 0; }
+  .warn { color:var(--red); font-weight:700; }
+  .note { background:var(--surface2); border-left:3px solid var(--orange); padding:10px 14px; font-size:13px; color:var(--text2); margin:12px 0; }
+  .ok { color:#2a6b8a; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>综合矩阵 v4.0 — 镜像验收用例</h1>
+<p class="sub">优势方视角 ↔ 绝对主/客 · 2026-08-01</p>
+
+<div class="note">
+  <strong>验收分两层：</strong>
+  <strong>① 机械性质</strong>（镜像表本身的正确性，一次验完）；
+  <strong>② 端到端用例</strong>（原始输入 → 档位/战绩 → 评级 → 镜像，逐条人工核对）。
+  所有用例的预期值均按 <strong>待审4 现行矩阵</strong> 手推，若预期与实际不符即矩阵有误。
+</div>
+
+<h2>一、机械性质校验（镜像翻译表）</h2>
+<div class="box">
+  <ol>
+    <li><strong>双射</strong>：优势方=主 列把 9 个相对输出映射到 9 个不同绝对输出；优势方=客 列同理。→ 逐格可见，成立</li>
+    <li><strong>反对称</strong>：对每个相对输出 R，<code>翻译(R, 优势方=主)</code> = <code>翻译(R, 优势方=客)</code> 的对立翻转。
+      例：优势方巨大 → 主巨大/客巨大 ✓；劣势方巨大 → 客巨大/主巨大 ✓；倾向优势方 → 倾向主/倾向客 ✓</li>
+    <li><strong>均势不变</strong>：均势 → 均势，两方向相同（无方向量）✓</li>
+    <li><strong>未用行</strong>：劣势方明显 / 劣势方巨大 两行在当前 54 格里 <strong>无任何格子输出</strong>（反向最强只到"劣势方优势"，见档2 反向·巨大）。
+      → 建议标注"预留"行，防误用</li>
+  </ol>
+</div>
+
+<h2>二、端到端用例（8条）</h2>
+
+<h3>U1 优势方=客 + 同向 → 客巨大（象限①）</h3>
+<table>
+  <tr><th>输入项</th><th>值</th></tr>
+  <tr><td>主/客有效PPG</td><td>主 0.75 / 客 2.21（差 1.46 → 档5，优势方=客）</td></tr>
+  <tr><td>近4场战绩</td><td>主 0-0-4（0分）/ 客 4-0-0（20分）</td></tr>
+  <tr><td>战绩状态</td><td>客巨大优势（分差 20，相对优势方=客 → 同向·巨大）</td></tr>
+  <tr><td>相对输出</td><td>档5 同向·巨大 → 优势方巨大</td></tr>
+  <tr><td>预期镜像输出</td><td class="ok">客巨大</td></tr>
+</table>
+
+<h3>U2 优势方=主 + 反向 → 倾向主（象限②）</h3>
+<table>
+  <tr><th>输入项</th><th>值</th></tr>
+  <tr><td>主/客有效PPG</td><td>主 2.21 / 客 0.75（差 +1.46 → 档5，优势方=主）</td></tr>
+  <tr><td>近4场战绩</td><td>主 0-0-4（0分）/ 客 4-0-0（20分）</td></tr>
+  <tr><td>战绩状态</td><td>客巨大优势（相对优势方=主 → 反向·巨大）</td></tr>
+  <tr><td>相对输出</td><td>档5 反向·巨大 → 倾向优势方</td></tr>
+  <tr><td>预期镜像输出</td><td class="ok">倾向主</td></tr>
+</table>
+
+<h3>U3 优势方=主 + 同向 → 主巨大（象限③，U1 翻转对）</h3>
+<table>
+  <tr><th>输入项</th><th>值</th></tr>
+  <tr><td>主/客有效PPG</td><td>主 2.21 / 客 0.75（差 +1.46 → 档5，优势方=主）</td></tr>
+  <tr><td>近4场战绩</td><td>主 4-0-0（20分）/ 客 0-0-4（0分）</td></tr>
+  <tr><td>战绩状态</td><td>主巨大优势（相对优势方=主 → 同向·巨大）</td></tr>
+  <tr><td>相对输出</td><td>档5 同向·巨大 → 优势方巨大</td></tr>
+  <tr><td>预期镜像输出</td><td class="ok">主巨大</td></tr>
+</table>
+
+<h3>U4 优势方=客 + 反向 → 倾向客（象限④，U2 翻转对）</h3>
+<table>
+  <tr><th>输入项</th><th>值</th></tr>
+  <tr><td>主/客有效PPG</td><td>主 0.75 / 客 2.21（差 1.46 → 档5，优势方=客）</td></tr>
+  <tr><td>近4场战绩</td><td>主 4-0-0（20分）/ 客 0-0-4（0分）</td></tr>
+  <tr><td>战绩状态</td><td>主巨大优势（相对优势方=客 → 反向·巨大）</td></tr>
+  <tr><td>相对输出</td><td>档5 反向·巨大 → 倾向优势方</td></tr>
+  <tr><td>预期镜像输出</td><td class="ok">倾向客</td></tr>
+</table>
+
+<h3>U5 档0 主侧：积分均势 + 主队战绩优势 → 倾向主</h3>
+<table>
+  <tr><th>输入项</th><th>值</th></tr>
+  <tr><td>主/客有效PPG</td><td>主 1.30 / 客 1.30（差 0 → 档0，无优势方）</td></tr>
+  <tr><td>近4场战绩</td><td>主 2-1-1（12分）/ 客 1-2-1（9分）→ 主优势（分差 3）</td></tr>
+  <tr><td>档0 查表</td><td>主优势 → 倾向主</td></tr>
+  <tr><td>预期输出</td><td class="ok">倾向主</td></tr>
+</table>
+
+<h3>U6 档0 客侧：积分均势 + 客队战绩优势 → 倾向客（U5 翻转对）</h3>
+<table>
+  <tr><th>输入项</th><th>值</th></tr>
+  <tr><td>主/客有效PPG</td><td>主 1.30 / 客 1.30（差 0 → 档0，无优势方）</td></tr>
+  <tr><td>近4场战绩</td><td>客 2-1-1（12分）/ 主 1-2-1（9分）→ 客优势（分差 3）</td></tr>
+  <tr><td>档0 查表</td><td>客优势 → 倾向客</td></tr>
+  <tr><td>预期输出</td><td class="ok">倾向客</td></tr>
+</table>
+
+<h3>U7 边界格：档3 反向·巨大 → 倾向劣势方</h3>
+<table>
+  <tr><th>输入项</th><th>值</th></tr>
+  <tr><td>主/客有效PPG</td><td>主 1.60 / 客 1.05（差 0.55 → 档3，优势方=主）</td></tr>
+  <tr><td>近4场战绩</td><td>主 0-0-4（0分）/ 客 4-0-0（20分）→ 客巨大（反向·巨大）</td></tr>
+  <tr><td>相对输出</td><td>档3 反向·巨大 → 倾向劣势方</td></tr>
+  <tr><td>预期镜像输出</td><td class="ok">倾向客</td></tr>
+</table>
+
+<h3>U8 反转格：档2 反向·巨大 → 劣势方优势</h3>
+<table>
+  <tr><th>输入项</th><th>值</th></tr>
+  <tr><td>主/客有效PPG</td><td>主 1.55 / 客 1.35（差 0.20 → 档2，优势方=主）</td></tr>
+  <tr><td>近4场战绩</td><td>主 0-0-4（0分）/ 客 4-0-0（20分）→ 客巨大（反向·巨大）</td></tr>
+  <tr><td>相对输出</td><td>档2 反向·巨大 → 劣势方优势</td></tr>
+  <tr><td>预期镜像输出</td><td class="ok">客优势</td></tr>
+</table>
+
+<h2>三、覆盖矩阵说明</h2>
+<div class="box">
+  <ul>
+    <li><strong>象限补齐</strong>：U1=客+同向、U2=主+反向、U3=主+同向、U4=客+反向，2×2 全象限覆盖，U1↔U3、U2↔U4 互为翻转对</li>
+    <li><strong>档0 双侧</strong>：U5/U6 验绝对视角主/客侧翻转不变性</li>
+    <li><strong>特殊格</strong>：U7 验已知 2 级跳变边界（档3 反巨）、U8 验唯一"劣势方优势"输出格（档2 反巨）</li>
+    <li><strong>未覆盖</strong>：同向/反向的 轻微/优势/明显 中段格未逐条列，由机械性质 + 代表性格推导；如需全 54 格逐格验收请明示</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>近期战绩模型 v1.0 — 网页说明</title>
+<style>
+  :root {
+    --bg: #c7edcc;
+    --surface: #d8f0dc;
+    --surface2: #e3f5e6;
+    --surface3: #eef9ef;
+    --text: #2c3e2d;
+    --text2: #4a6b4b;
+    --text3: #6a8b6b;
+    --accent: #b84a5a;
+    --accent2: #4a7b6a;
+    --blue: #2a6b8a;
+    --green: #2d8a4e;
+    --yellow: #b88a20;
+    --red: #b84a3a;
+    --border: #a8c8ac;
+    --shadow: rgba(0,0,0,0.06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.8;
+    padding: 20px 40px 60px;
+  }
+  .container { max-width: 1000px; margin: 0 auto; }
+
+  h1 {
+    font-size: 28px; color: var(--accent); border-left: 4px solid var(--accent);
+    padding-left: 16px; margin: 30px 0 8px;
+  }
+  .subtitle { color: var(--text3); font-size: 14px; margin-bottom: 30px; padding-left: 20px; }
+
+  h2 {
+    font-size: 20px; color: var(--accent2); margin: 36px 0 16px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--border);
+    font-weight: 600;
+  }
+  h3 {
+    font-size: 16px; color: var(--blue); margin: 24px 0 12px;
+  }
+  h4 {
+    font-size: 14px; color: var(--text2); margin: 16px 0 8px;
+  }
+
+  table {
+    width: 100%; border-collapse: collapse; margin: 12px 0;
+    font-size: 14px;
+  }
+  th {
+    background: var(--surface2); color: var(--text2); font-weight: 600;
+    padding: 8px 12px; text-align: left; border: 1px solid var(--border);
+  }
+  td {
+    padding: 6px 12px; border: 1px solid var(--border); color: var(--text);
+  }
+  tr:nth-child(even) { background: var(--surface3); }
+  tr:hover { background: var(--surface2); }
+
+  .badge {
+    display: inline-block; padding: 2px 10px; border-radius: 12px;
+    font-size: 12px; font-weight: 600;
+  }
+  .badge-high { background: #d4e8d4; color: var(--green); }
+  .badge-low { background: #f0d8d4; color: var(--red); }
+  .badge-warn { background: #f5e8c8; color: #8a6a10; }
+
+  .example-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 16px; margin: 8px 0;
+    font-size: 14px; font-family: 'Courier New', monospace;
+    color: var(--text2); line-height: 2;
+  }
+  .example-box .tag {
+    display: inline-block; padding: 1px 8px; border-radius: 4px;
+    font-size: 12px; font-weight: 600; margin-right: 4px;
+  }
+  .tag-high { background: #d4e8d4; color: var(--green); }
+  .tag-low { background: #f0d8d4; color: var(--red); }
+
+  .rule-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin: 16px 0;
+  }
+  .rule-card-title {
+    font-size: 16px; font-weight: 600; color: var(--accent2); margin-bottom: 12px;
+  }
+  .rule-row {
+    display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0;
+  }
+  .rule-item {
+    flex: 1; min-width: 120px; background: var(--surface2);
+    border-radius: 6px; padding: 12px; text-align: center;
+  }
+  .rule-item .val { font-size: 18px; font-weight: 700; }
+  .rule-item .lbl { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+  ul, ol { padding-left: 20px; margin: 8px 0; }
+  li { margin: 4px 0; }
+
+  .note {
+    background: var(--surface2); border-radius: 6px; padding: 10px 14px;
+    font-size: 13px; color: var(--text3); margin: 12px 0; line-height: 1.6;
+    border-left: 3px solid var(--yellow);
+  }
+
+  .footer {
+    margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border);
+    color: var(--text3); font-size: 13px; text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>近期战绩模型 v1.0</h1>
+<div class="subtitle">生成日期：2026-07-30 · 状态：已定案</div>
+
+<h2>一、模型定位</h2>
+<p>积分模型负责 <strong>长期实力</strong>（全赛季PPG），战绩模型负责 <strong>短期状态</strong>（近4场联赛结果）。</p>
+<p>两者是 <strong>独立维度</strong>，不做代数叠加。最终方向由用户综合判断。</p>
+
+<h2>二、核心参数</h2>
+<table>
+  <tr><th>参数</th><th>值</th><th>说明</th></tr>
+  <tr><td>窗口</td><td>最近4场联赛</td><td>约1个月的竞技状态窗口</td></tr>
+  <tr><td>赋分</td><td>胜=5 / 平=2 / 负=0</td><td>15种WDL组合全部唯一区分</td></tr>
+  <tr><td>主客场</td><td>不区分</td><td>特殊情况模型中手动标注</td></tr>
+  <tr><td>对手强度修正</td><td>不做</td><td>权重待定</td></tr>
+  <tr><td>最近一场衰减</td><td>不做</td><td>4场等权</td></tr>
+</table>
+
+<h2>三、全部WDL组合与分值</h2>
+<table>
+  <tr><th>总分</th><th>胜-平-负</th><th>胜率</th><th>含义</th></tr>
+  <tr><td><strong>20</strong></td><td>4-0-0</td><td>100%</td><td>全胜，碾压</td></tr>
+  <tr><td>17</td><td>3-1-0</td><td>75%</td><td>不败，仅丢2分</td></tr>
+  <tr><td><strong>15</strong></td><td>3-0-1</td><td>75%</td><td>双高阈值线（≥15标双高）</td></tr>
+  <tr><td>14</td><td>2-2-0</td><td>50%</td><td>不败但平局多</td></tr>
+  <tr><td>12</td><td>2-1-1</td><td>50%</td><td>正常中上</td></tr>
+  <tr><td>11</td><td>1-3-0</td><td>25%</td><td>不败但胜率低</td></tr>
+  <tr><td>10</td><td>2-0-2</td><td>50%</td><td>胜负各半，神经刀</td></tr>
+  <tr><td>9</td><td>1-2-1</td><td>25%</td><td>中规中矩</td></tr>
+  <tr><td>8</td><td>0-4-0</td><td>0%</td><td>4连平，没赢过</td></tr>
+  <tr><td>7</td><td>1-1-2</td><td>25%</td><td>输多赢少</td></tr>
+  <tr><td>6</td><td>0-3-1</td><td>0%</td><td>没赢过，苟3平</td></tr>
+  <tr><td><strong>5</strong></td><td>1-0-3</td><td>25%</td><td>双低阈值线（≤5标双低）</td></tr>
+  <tr><td>4</td><td>0-2-2</td><td>0%</td><td>没赢过，半输半平</td></tr>
+  <tr><td>2</td><td>0-1-3</td><td>0%</td><td>基本崩盘</td></tr>
+  <tr><td><strong>0</strong></td><td>0-0-4</td><td>0%</td><td>4连败，崩盘</td></tr>
+</table>
+
+<h2>四、输出规则</h2>
+
+<div class="rule-card">
+  <div class="rule-card-title">4档判断</div>
+  <div class="rule-row">
+    <div class="rule-item"><div class="val">0</div><div class="lbl">均势</div></div>
+    <div class="rule-item"><div class="val" style="color:var(--blue);">1~2</div><div class="lbl">轻微优势</div></div>
+    <div class="rule-item"><div class="val" style="color:var(--blue);">3~6</div><div class="lbl">优势</div></div>
+    <div class="rule-item"><div class="val" style="color:var(--accent);">7~9</div><div class="lbl">明显优势</div></div>
+    <div class="rule-item"><div class="val" style="color:var(--red);">≥10</div><div class="lbl">巨大优势</div></div>
+  </div>
+</div>
+
+<h3>4.2 状态标注</h3>
+<table>
+  <tr><th>条件</th><th>标注</th><th>含义</th></tr>
+  <tr><td>双方得分都 ≥ 15</td><td><span class="badge badge-high">[双高状态]</span></td><td>两队状态都好，战绩信号弱化</td></tr>
+  <tr><td>双方得分都 ≤ 5</td><td><span class="badge badge-low">[双低状态]</span></td><td>两队状态都差，战绩不可靠</td></tr>
+  <tr><td>其他</td><td>无标注</td><td>正常判断</td></tr>
+</table>
+
+<div class="note">
+<strong>注意：</strong>双高/双低仅作为参考标注，不影响四档输出本身。即使双高或双低，分差仍然正常显示。
+</div>
+
+<h2>五、输出示例</h2>
+
+<div class="example-box">
+战绩：优势 +5 <span class="tag tag-high">[双高状态]</span> &nbsp;&nbsp;← 20 vs 15<br>
+战绩：轻微优势 +2 &nbsp;&nbsp;← 11 vs 9<br>
+战绩：均势 0 &nbsp;&nbsp;← 10 vs 10<br>
+战绩：均势 0 <span class="tag tag-high">[双高状态]</span> &nbsp;&nbsp;← 20 vs 20（高质量均势）<br>
+战绩：均势 0 <span class="tag tag-low">[双低状态]</span> &nbsp;&nbsp;← 4 vs 4（低质量均势）<br>
+战绩：客巨大优势 -12 &nbsp;&nbsp;← 2 vs 14<br>
+战绩：主优势 +8 <span class="tag tag-low">[双低状态]</span> &nbsp;&nbsp;← 9 vs 1
+</div>
+
+<h2>六、与积分模型的关系</h2>
+<table>
+  <tr><th>场景</th><th>综合判断</th></tr>
+  <tr><td>积分模型直接 + 战绩同方向</td><td>信号较强，可出手</td></tr>
+  <tr><td>积分模型直接 + 战绩反方向</td><td>以积分模型为主，谨慎</td></tr>
+  <tr><td>积分模型均势 + 战绩有倾向</td><td>看盘口决定</td></tr>
+  <tr><td>积分模型略优 + 战绩倾向另一侧</td><td>冲突，放弃或等盘口数据</td></tr>
+  <tr><td>积分为同分/同等 + 战绩大幅倾向一方</td><td>均势区，战绩倾向仅供参考</td></tr>
+</table>
+
+<h2>七、已知未处理事项</h2>
+<table>
+  <tr><th>事项</th><th>预计处理时机</th></tr>
+  <tr><td>对手强度修正</td><td>战绩模型v2.0（暂不处理）</td></tr>
+  <tr><td>主客场分拆</td><td>v2.0（暂不处理）</td></tr>
+  <tr><td>窗口大小优化（3场 vs 4场 vs 5场）</td><td>等待回测数据</td></tr>
+  <tr><td>赋分方案验证（5/2/0 vs 其他方案）</td><td>等待回测数据</td></tr>
+  <tr><td>升班马数据缺失</td><td>由积分模型先验处理</td></tr>
+</table>
+
+<div class="footer">
+  近期战绩模型 v1.0 · 文档结束
+</div>
+
+</div>
+</body>
+</html>

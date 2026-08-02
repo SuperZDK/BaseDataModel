@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>综合模型 v3.0 — 计算工具</title>
+<style>
+  :root {
+    --bg: #c7edcc; --surface: #d8f0dc; --surface2: #e3f5e6; --surface3: #eef9ef;
+    --text: #2c3e2d; --text2: #4a6b4b; --text3: #6a8b6b;
+    --accent: #b84a5a; --accent2: #4a7b6a; --blue: #2a6b8a; --green: #2d8a4e;
+    --yellow: #b88a20; --red: #b84a3a; --border: #a8c8ac; --input-bg: #eef6ef;
+    --shadow: rgba(0,0,0,0.06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100vh;
+    display: flex; justify-content: center; padding: 20px;
+  }
+  .container { max-width: 860px; width: 100%; }
+  .header { text-align: center; padding: 20px 0 16px; }
+  .header h1 { font-size: 26px; color: var(--accent); }
+  .header p { color: var(--text3); font-size: 14px; margin-top: 4px; }
+
+  .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 760px) { .main-grid { grid-template-columns: 1fr; } }
+
+  .card { background: var(--surface); border-radius: 12px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 2px 8px var(--shadow); }
+  .card-title { font-size: 15px; font-weight: 600; color: var(--accent2); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+  .card-subtitle { font-size: 13px; font-weight: 600; color: var(--text2); margin: 14px 0 8px; }
+
+  .form-group { margin-bottom: 10px; }
+  .form-group label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 3px; font-weight: 500; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 7px 10px; background: var(--input-bg);
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-size: 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--accent2); box-shadow: 0 0 0 2px rgba(74,123,106,0.2); }
+  .form-group select {
+    -webkit-appearance: none; appearance: none; text-align: center;
+    background: var(--input-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a6b4b'/%3E%3C/svg%3E") no-repeat right 8px center;
+    padding-right: 24px;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .form-row-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+
+  .btn {
+    width: 100%; padding: 12px; border: none; border-radius: 8px;
+    font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    background: var(--accent); color: #fff; margin: 16px 0;
+    box-shadow: 0 2px 6px rgba(184,74,90,0.3);
+  }
+  .btn:hover { background: #9a3a4a; transform: translateY(-1px); }
+
+  .result-box { background: var(--surface); border-radius: 12px; padding: 24px; border: 1px solid var(--border); text-align: center; box-shadow: 0 2px 8px var(--shadow); }
+  .match-header { display: flex; justify-content: center; align-items: center; gap: 16px; font-size: 18px; font-weight: 700; margin: 8px 0 16px; }
+  .match-header .home { color: var(--blue); }
+  .match-header .away { color: var(--red); }
+  .match-header .vs { color: var(--text3); font-size: 14px; }
+
+  .result-line { font-size: 30px; font-weight: 700; margin: 6px 0; }
+  .result-tags { margin: 6px 0; min-height: 24px; }
+
+  .result-row { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; margin: 8px 0; }
+  .result-stat { text-align: center; min-width: 100px; }
+  .result-stat .num { font-size: 24px; font-weight: 700; }
+  .result-stat .lbl { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .divider { border: none; border-top: 2px solid var(--border); margin: 16px 0; }
+  .result-detail { font-size: 13px; color: var(--text2); line-height: 2; text-align: left; margin: 8px 0; }
+
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+  .tag-home { background: #d0e0d4; color: var(--blue); }
+  .tag-away { background: #f0d8d4; color: var(--red); }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: #d4e8d4; color: var(--green); }
+  .badge-orange { background: #f5e8c8; color: #8a6a10; }
+
+  .chaos-tag { display: inline-block; width: 1.4em; height: 1.4em; border-radius: 50%; border: 2px solid var(--red); color: var(--red); font-size: 11px; font-weight: 700; text-align: center; line-height: 1.4em; }
+
+  .note { background: var(--surface2); border-radius: 6px; padding: 8px 12px; font-size: 12px; color: var(--text3); margin-top: 10px; line-height: 1.6; }
+
+  .tier-badge { display: inline-block; padding: 2px 12px; border-radius: 4px; font-size: 13px; font-weight: 600; color: #fff; }
+  .t5 { background: #9a2a4a; } .t4 { background: #b84a3a; } .t3 { background: #b87a30; }
+  .t2 { background: #3a6a8a; } .t1 { background: #4a7a9a; } .t0 { background: #8a9a8a; }
+
+  .warn-dot { color: var(--red); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+  <h1>综合模型 v3.0</h1>
+  <p>积分模型 v7.0 + 近期战绩模型 v1.0</p>
+</div>
+
+<div class="main-grid">
+  <div class="card">
+    <div class="card-title"><span class="tag tag-home">主队</span> 积分 + 战绩</div>
+    <div class="form-group"><label>队名（选填）</label><input type="text" id="homeName" value="利物浦"></div>
+    <div class="form-row">
+      <div class="form-group"><label>上赛季积分</label><input type="number" id="homePrevPts" value="84" step="1"></div>
+      <div class="form-group"><label>当前积分</label><input type="number" id="homeCurrPts" value="42" step="1"></div>
+    </div>
+    <div class="form-group"><label>已赛场次</label><input type="number" id="homePlayed" value="18" step="1" min="0"></div>
+    <div class="card-subtitle">近4场</div>
+    <div class="form-row-4">
+      <div class="form-group"><label>近1</label><select id="hR1"><option value="w" selected>胜</option><option value="d">平</option><option value="l">负</option></select></div>
+      <div class="form-group"><label>近2</label><select id="hR2"><option value="w" selected>胜</option><option value="d">平</option><option value="l">负</option></select></div>
+      <div class="form-group"><label>近3</label><select id="hR3"><option value="w">胜</option><option value="d">平</option><option value="l" selected>负</option></select></div>
+      <div class="form-group"><label>近4</label><select id="hR4"><option value="w" selected>胜</option><option value="d">平</option><option value="l">负</option></select></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="tag tag-away">客队</span> 积分 + 战绩</div>
+    <div class="form-group"><label>队名（选填）</label><input type="text" id="awayName" value="埃弗顿"></div>
+    <div class="form-row">
+      <div class="form-group"><label>上赛季积分</label><input type="number" id="awayPrevPts" value="33" step="1"></div>
+      <div class="form-group"><label>当前积分</label><input type="number" id="awayCurrPts" value="17" step="1"></div>
+    </div>
+    <div class="form-group"><label>已赛场次</label><input type="number" id="awayPlayed" value="18" step="1" min="0"></div>
+    <div class="card-subtitle">近4场</div>
+    <div class="form-row-4">
+      <div class="form-group"><label>近1</label><select id="aR1"><option value="w">胜</option><option value="d">平</option><option value="l" selected>负</option></select></div>
+      <div class="form-group"><label>近2</label><select id="aR2"><option value="w">胜</option><option value="d" selected>平</option><option value="l">负</option></select></div>
+      <div class="form-group"><label>近3</label><select id="aR3"><option value="w">胜</option><option value="d">平</option><option value="l" selected>负</option></select></div>
+      <div class="form-group"><label>近4</label><select id="aR4"><option value="w">胜</option><option value="d">平</option><option value="l" selected>负</option></select></div>
+    </div>
+  </div>
+</div>
+
+<div class="form-row-3">
+  <div class="form-group"><label>当前轮次 (R)</label><input type="number" id="currentRound" value="19" step="1" min="1"></div>
+  <div class="form-group"><label>联赛总轮次</label><input type="number" id="totalRounds" value="38" step="1" min="1"></div>
+  <div class="form-group"><label>升班马参照PPG(R≤10生效)</label><input type="number" id="promotedPrior" value="1.05" step="0.01"></div>
+</div>
+
+<button class="btn" onclick="calc()">计算综合输出</button>
+
+<div class="result-box" id="resultBox">
+  <div id="resultHeader" class="match-header">
+    <span class="home">利物浦</span><span class="vs">VS</span><span class="away">埃弗顿</span>
+  </div>
+
+  <div id="rLine1" class="result-line">主优势（曼城）</div>
+  <div id="rLine2" class="result-line">积分超优 | 战绩巨大劣势 ⚠</div>
+  <div id="rTags" class="result-tags"></div>
+
+  <hr class="divider">
+
+  <div class="result-row">
+    <div class="result-stat"><div class="num" style="color:var(--blue)" id="rHomeScore">2.211</div><div class="lbl">主有效PPG</div></div>
+    <div class="result-stat"><div class="num" id="rTier"><span class="tier-badge t4">档4</span></div><div class="lbl">积分档位</div></div>
+    <div class="result-stat"><div class="num" style="color:var(--red)" id="rAwayScore">0.895</div><div class="lbl">客有效PPG</div></div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="result-detail" id="resultDetail"></div>
+</div>
+
+<div class="note">
+  <strong>规则</strong>：积分定档(0-5)，战绩定强度，综合输出9级标尺。<br>
+  标记：<span class="chaos-tag">乱</span>=冲突 · <span class="badge badge-green">[++]=双高</span> · <span class="badge badge-orange">[--]=双低</span> · <span class="warn-dot">⚠</span>=方向矛盾 · ⚠️=场次差<br>
+  <span style="font-size:11px;color:var(--text3);">变更输入后自动重算</span>
+</div>
+
+<script>
+function getI(id) { return parseInt(document.getElementById(id).value) || 0; }
+function getF(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function getS(id) { return document.getElementById(id).value; }
+function toPt(r) { return r==='w'?5:r==='d'?2:0; }
+function toCn(r) { return r==='w'?'胜':r==='d'?'平':'负'; }
+
+function getFormTier(diff) {
+  if (diff===0) return '均势';
+  const ad=Math.abs(diff), dir=diff>0?'主':'客';
+  if (ad<=2) return dir+'轻微优势'; if (ad<=6) return dir+'优势';
+  if (ad<=9) return dir+'明显优势'; return dir+'巨大优势';
+}
+
+function ptsTier(diff) {
+  const ad=Math.abs(diff);
+  if (ad===0) return 0; if (ad<=0.12) return 1; if (ad<=0.30) return 2;
+  if (ad<=0.60) return 3; if (ad<=1.10) return 4; return 5;
+}
+
+function getFormLabelRelative(teamScore, oppScore) {
+  const diff = teamScore - oppScore;
+  const ad = Math.abs(diff);
+  if (ad === 0) return '均势';
+  const level = diff > 0 ? '优势' : '劣势';
+  if (ad <= 2) return '轻微' + level;
+  if (ad <= 6) return level;
+  if (ad <= 9) return '明显' + level;
+  return '巨大' + level;
+}
+
+function getCombine(tier, formDiff, homeFormScore, awayFormScore) {
+  const formAbs = Math.abs(formDiff);
+  const formDir = formDiff > 0 ? 'h' : (formDiff < 0 ? 'a' : 'n');
+  const isHH = homeFormScore >= 15 && awayFormScore >= 15;
+  const isLL = homeFormScore <= 5 && awayFormScore <= 5;
+
+  let fCat;
+  if (formDir === 'h') {
+    if (formAbs <= 2) fCat = 'h1';
+    else if (formAbs <= 6) fCat = 'h2';
+    else if (formAbs <= 9) fCat = 'h3';
+    else fCat = 'h4';
+  } else if (formDir === 'a') {
+    if (formAbs <= 2) fCat = 'a1';
+    else if (formAbs <= 6) fCat = 'a2';
+    else if (formAbs <= 9) fCat = 'a3';
+    else fCat = 'a4';
+  } else {
+    fCat = 'n';
+  }
+
+  const matrix = {
+    5: {
+      h4: { out: '主巨大', tags: [] },
+      h3: { out: '主巨大', tags: [] },
+      h2: { out: '主明显', tags: [] },
+      h1: { out: '主明显', tags: [] },
+      n:  { out: '主优势', tags: [] },
+      a1: { out: '主优势', tags: [] },
+      a2: { out: '主优势', tags: [] },
+      a3: { out: '倾向主', tags: [] },
+      a4: { out: '倾向主', tags: [] }
+    },
+    4: {
+      h4: { out: '主巨大', tags: [] },
+      h3: { out: '主明显', tags: [] },
+      h2: { out: '主优势', tags: [] },
+      h1: { out: '倾向主', tags: [] },
+      n:  { out: '主优势', tags: [] },
+      a1: { out: '主优势', tags: [] },
+      a2: { out: '倾向主', tags: [] },
+      a3: { out: '倾向主', tags: [] },
+      a4: { out: '均势', tags: ['chaos'] }
+    },
+    3: {
+      h4: { out: '主明显', tags: [] },
+      h3: { out: '主优势', tags: [] },
+      h2: { out: '主优势', tags: [] },
+      h1: { out: '倾向主', tags: [] },
+      n:  { out: '主优势', tags: [] },
+      a1: { out: '倾向主', tags: [] },
+      a2: { out: '均势', tags: ['chaos'] },
+      a3: { out: '倾向客', tags: [] },
+      a4: { out: '客优势', tags: [] }
+    },
+    2: {
+      h4: { out: '主明显', tags: [] },
+      h3: { out: '主明显', tags: [] },
+      h2: { out: '主优势', tags: [] },
+      h1: { out: '主优势', tags: [] },
+      n:  { out: '倾向主', tags: [] },
+      a1: { out: '倾向主', tags: [] },
+      a2: { out: '均势', tags: ['chaos'] },
+      a3: { out: '倾向客', tags: [] },
+      a4: { out: '客优势', tags: [] }
+    },
+    1: {
+      h4: { out: '倾向主', tags: [] },
+      h3: { out: '倾向主', tags: [] },
+      h2: { out: '主优势', tags: [] },
+      h1: { out: '主优势', tags: [] },
+      n:  { out: '均势', tags: [] },
+      a1: { out: '均势', tags: [] },
+      a2: { out: '倾向客', tags: [] },
+      a3: { out: '客优势', tags: [] },
+      a4: { out: '客优势', tags: [] }
+    },
+    0: {
+      h4: { out: '主优势', tags: [] },
+      h3: { out: '主优势', tags: [] },
+      h2: { out: '主优势', tags: [] },
+      h1: { out: '主优势', tags: [] },
+      n:  { out: '均势', tags: [] },
+      a1: { out: '客优势', tags: [] },
+      a2: { out: '客优势', tags: [] },
+      a3: { out: '客优势', tags: [] },
+      a4: { out: '客优势', tags: [] }
+    }
+  };
+
+  const row = matrix[tier][fCat] || { out: '均势', tags: [] };
+  const tags = [...row.tags];
+
+  if (isHH && !isLL) tags.push('hh');
+  if (isLL && !isHH) tags.push('ll');
+  if (isLL && isHH) tags.push('hh');
+
+  return { out: row.out, tags: tags };
+}
+
+function calc() {
+  const hName = getS('homeName') || '主队';
+  const aName = getS('awayName') || '客队';
+  const hp = getF('homePrevPts'), hc = getF('homeCurrPts'), hpl = getI('homePlayed');
+  const ap = getF('awayPrevPts'), ac = getF('awayCurrPts'), apl = getI('awayPlayed');
+  const R = getI('currentRound') || 1, TR = getI('totalRounds') || 38;
+
+  const pp = R <= 10 ? (getF('promotedPrior') || 1.05) : 0;
+
+  const hR1=getS('hR1'),hR2=getS('hR2'),hR3=getS('hR3'),hR4=getS('hR4');
+  const aR1=getS('aR1'),aR2=getS('aR2'),aR3=getS('aR3'),aR4=getS('aR4');
+
+  const hFormScore = toPt(hR1)+toPt(hR2)+toPt(hR3)+toPt(hR4);
+  const aFormScore = toPt(aR1)+toPt(aR2)+toPt(aR3)+toPt(aR4);
+  const formDiff = hFormScore - aFormScore;
+  const hFormStr = toCn(hR1)+toCn(hR2)+toCn(hR3)+toCn(hR4);
+  const aFormStr = toCn(aR1)+toCn(aR2)+toCn(aR3)+toCn(aR4);
+
+  let hPriorPPG = hp > 0 ? hp/TR : pp;
+  let aPriorPPG = ap > 0 ? ap/TR : pp;
+  let hCurrPPG = hpl > 0 ? hc/hpl : 0;
+  let aCurrPPG = apl > 0 ? ac/apl : 0;
+
+  let hEffPPG, aEffPPG;
+  if (R <= 4) { hEffPPG = hPriorPPG; aEffPPG = aPriorPPG; }
+  else {
+    let w = Math.max(0, 1.0 - (R-4)*0.2);
+    hEffPPG = hpl===0 ? hPriorPPG : w*hPriorPPG + (1-w)*hCurrPPG;
+    aEffPPG = apl===0 ? aPriorPPG : w*aPriorPPG + (1-w)*aCurrPPG;
+  }
+
+  const ppgDiff = hEffPPG - aEffPPG;
+  const tier = ptsTier(ppgDiff);
+  const scoreDiff = Math.round(ppgDiff * TR);
+  const matchDiff = Math.abs(hpl - apl);
+  const hasWarn = matchDiff >= 2;
+
+  const formTierName = getFormTier(formDiff);
+
+  let result = getCombine(tier, formDiff, hFormScore, aFormScore);
+
+  const tierNames = ['同分','同等','略优','较优','明显','超优'];
+  const tierColors = ['t0','t1','t2','t3','t4','t5'];
+
+  const tierShort = tierNames[tier];
+  const isGap = tier >= 2;
+
+  let line1 = result.out;
+  let line2 = '';
+  let warnTag = false;
+
+  if (isGap) {
+    const advIsHome = ppgDiff > 0;
+    const advName = advIsHome ? hName : aName;
+    const advTierName = tierNames[tier];
+    const advForm = advIsHome ? hFormScore : aFormScore;
+    const oppForm = advIsHome ? aFormScore : hFormScore;
+    const formLabel = getFormLabelRelative(advForm, oppForm);
+
+    line1 = result.out + '（' + advName + '）';
+    line2 = '积分' + advTierName + ' | 战绩' + formLabel;
+
+    if ((advIsHome && hFormScore < aFormScore) || (!advIsHome && aFormScore < hFormScore)) {
+      warnTag = true;
+    }
+  } else {
+    line1 = result.out + '（积分均势）';
+    const hFormLabel = getFormLabelRelative(hFormScore, aFormScore);
+    line2 = '主队战绩' + hFormLabel;
+  }
+
+  if (warnTag) line2 += ' ⚠';
+
+  const isHH = hFormScore >= 15 && aFormScore >= 15;
+  const isLL = hFormScore <= 5 && aFormScore <= 5;
+
+  let tagsHtml = '';
+  if (result.tags.includes('chaos')) tagsHtml += '<span class="chaos-tag">乱</span> ';
+  if (isHH) tagsHtml += '<span class="badge badge-green">[++] 双高</span> ';
+  if (isLL) tagsHtml += '<span class="badge badge-orange">[--] 双低</span> ';
+  if (hasWarn) tagsHtml += '<span class="badge" style="background:#f5e8c8;color:#8a6a10;">⚠️ 场次差='+matchDiff+'</span>';
+
+  document.getElementById('resultHeader').innerHTML =
+    '<span class="home">'+hName+'</span><span class="vs">VS</span><span class="away">'+aName+'</span>';
+
+  document.getElementById('rLine1').textContent = line1;
+  document.getElementById('rLine2').textContent = line2;
+  document.getElementById('rTags').innerHTML = tagsHtml;
+
+  document.getElementById('rHomeScore').textContent = hEffPPG.toFixed(3);
+  document.getElementById('rAwayScore').textContent = aEffPPG.toFixed(3);
+  document.getElementById('rTier').innerHTML = '<span class="tier-badge '+tierColors[tier]+'">档'+tier+' '+tierShort+'</span>';
+
+  let dt = '';
+  dt += '【积分模型】档位'+tier+'（'+tierShort+'偏'+(ppgDiff>0?'主':ppgDiff<0?'客':'=')
+       +'）· 等效分差：'+(scoreDiff>0?'+':'')+scoreDiff+'\n';
+  if (hasWarn) dt += ' ⚠️场次差='+matchDiff;
+  dt += '\n';
+  dt += '主队：先验PPG='+hPriorPPG.toFixed(3)+' 当前PPG='+(hpl>0?hCurrPPG.toFixed(3):'N/A');
+  if (hp===0) dt += ' [升班马]';
+  dt += '\n';
+  dt += '客队：先验PPG='+aPriorPPG.toFixed(3)+' 当前PPG='+(apl>0?aCurrPPG.toFixed(3):'N/A');
+  if (ap===0) dt += ' [升班马]';
+  dt += '\n\n';
+  dt += '【战绩模型】5/2/0赋分 · 近4场\n';
+  dt += '主队：'+hFormStr+' → '+hFormScore+'分\n';
+  dt += '客队：'+aFormStr+' → '+aFormScore+'分\n';
+  dt += '分差：'+(formDiff>=0?'+':'')+formDiff+' → '+formTierName+'\n';
+  dt += '\n';
+  dt += '【综合输出】'+line1+'\n'+line2;
+
+  document.getElementById('resultDetail').textContent = dt;
+
+  document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+const autoEls = [
+  'homeName','awayName','homePrevPts','homeCurrPts','homePlayed',
+  'awayPrevPts','awayCurrPts','awayPlayed','currentRound','totalRounds','promotedPrior',
+  'hR1','hR2','hR3','hR4','aR1','aR2','aR3','aR4'
+];
+autoEls.forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', calc); if (el && el.tagName==='SELECT') el.addEventListener('change', calc); });
+
+window.addEventListener('DOMContentLoaded', calc);
+</script>
+</div>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>积分模型 v7.0 — 使用说明</title>
+<style>
+  body { font-family: -apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; background: #c7edcc; color: #2c3e2d; padding: 30px 20px; }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 26px; color: #b84a5a; margin-bottom: 4px; }
+  .sub { text-align: center; font-size: 13px; color: #6a8b6b; margin-bottom: 28px; }
+  h2 { font-size: 18px; color: #4a7b6a; margin: 28px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #a8c8ac; }
+  h3 { font-size: 15px; color: #2c3e2d; margin: 20px 0 8px; }
+  p { font-size: 14px; line-height: 1.8; margin: 8px 0; }
+  .highlight { background: #eef6ef; border-radius: 6px; padding: 14px 18px; margin: 12px 0; border: 1px solid #b8d4bc; }
+  .highlight .title { font-weight: 700; color: #4a7b6a; margin-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+  th, td { border: 1px solid #a8c8ac; padding: 8px 10px; text-align: left; }
+  th { background: #c7edcc; font-weight: 600; color: #2c3e2d; }
+  td { background: #eef6ef; }
+  ul, ol { font-size: 14px; line-height: 1.8; padding-left: 20px; }
+  li { margin: 4px 0; }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; color: #fff; }
+  .t0 { background: #8a9a8a; } .t1 { background: #4a7a9a; } .t2 { background: #3a6a8a; }
+  .t3 { background: #b87a30; } .t4 { background: #b84a3a; } .t5 { background: #9a2a4a; }
+  .formula { font-family: 'Courier New', monospace; background: #d8f0dc; padding: 2px 6px; border-radius: 3px; font-size: 13px; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-o { background: #f5e8c8; color: #8a6a10; }
+  .badge-r { background: #f0d8d4; color: #b84a3a; }
+  .step { background: #eef6ef; border-left: 4px solid #4a7b6a; padding: 12px 16px; margin: 10px 0; border-radius: 0 6px 6px 0; }
+  .step-num { font-weight: 700; color: #4a7b6a; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>积分模型 v7.0 使用说明</h1>
+<p class="sub">PPG计算 · 线性过渡 · 六档判定 · 联赛梯队映射 — 分步详解</p>
+
+<h2>一、模型概览</h2>
+<p>
+积分模型 v7.0 是一个 <strong>基于PPG（Points Per Game，场均积分）</strong> 的球队实力比较模型。它的核心思路很简单：一支球队的水平最直接地体现在它每场比赛平均能拿多少分。
+</p>
+<p>
+模型做两件事：
+</p>
+<ol>
+  <li><strong>算出一个"有效PPG"</strong> — 综合上赛季和本赛季数据，给每支球队一个当前实力估计值</li>
+  <li><strong>比较两队有效PPG的差距</strong> — 将差距映射到6个档位，告诉你这个差距有多大、属于什么水平</li>
+</ol>
+<p>
+模型不预测比分，不给出投注建议。它只量化"这两队之间有多大的实力鸿沟"。
+</p>
+
+<hr style="border:none;border-top:2px solid #a8c8ac;margin:24px 0;">
+
+<h2>二、核心概念：PPG</h2>
+
+<p><strong>PPG = 积分 ÷ 场次</strong>。比"总积分"更公平，因为各队赛程进度可能不同。</p>
+
+<div class="highlight">
+<div class="title">举例</div>
+<p>球队A：18场42分 → PPG = 42 ÷ 18 = <strong>2.333</strong></p>
+<p>球队B：18场17分 → PPG = 17 ÷ 18 = <strong>0.944</strong></p>
+<p>球队A每场多拿约1.39分，38轮等效分差 ≈ 53分</p>
+</div>
+
+<p>英超的PPG直观参考（基于近4季数据）：</p>
+
+<table>
+  <tr><th>梯队</th><th>PPG区间</th><th>名次</th><th>每38轮等效分</th></tr>
+  <tr><td>争冠</td><td>2.10 ~ 2.50</td><td>1-2名</td><td>80~95分</td></tr>
+  <tr><td>欧冠</td><td>1.75 ~ 2.05</td><td>3-4名</td><td>67~78分</td></tr>
+  <tr><td>欧战</td><td>1.50 ~ 1.75</td><td>5-7名</td><td>57~67分</td></tr>
+  <tr><td>中游</td><td>1.20 ~ 1.50</td><td>8-13名</td><td>46~57分</td></tr>
+  <tr><td>保级挣扎</td><td>0.85 ~ 1.20</td><td>14-17名</td><td>32~46分</td></tr>
+  <tr><td>降级</td><td>0.50 ~ 0.85</td><td>18-20名</td><td>19~32分</td></tr>
+</table>
+
+<hr style="border:none;border-top:2px solid #a8c8ac;margin:24px 0;">
+
+<h2>三、先验PPG 与 当前PPG</h2>
+
+<p>PPG由两个部分合成：</p>
+
+<h3>3.1 先验PPG</h3>
+<div class="highlight">
+<div class="title">先验PPG = 上赛季积分 ÷ 38</div>
+<p>这是赛季开始前对该队实力的<strong>初始估计</strong>。用上赛季的总积分除以固定38轮。</p>
+</div>
+<ul>
+  <li><strong>已在上赛季英超的球队</strong>：直接取上赛季最终积分 ÷ 38。例如曼城上赛季84分 → 先验PPG = 2.211</li>
+  <li><strong>升班马（上赛季不在英超）</strong>：上赛季积分为0，先验PPG无法直接用。模型在R≤10时自动使用"升班马参照PPG"（默认1.05，来自近年升班马平均表现）。R>10后升班马已有足够数据，参照自动失效，先验PPG归0。</li>
+</ul>
+<p>为什么用先验？因为赛季初（前4轮）本赛季数据太少，仅凭2-3场的PPG可能完全失真（比如某队前3轮对手全是强队全输了，PPG=0，但这不代表它是保级队水平）。先验起到了"拉回合理区间"的作用。</p>
+
+<h3>3.2 当前PPG</h3>
+<div class="highlight">
+<div class="title">当前PPG = 当前积分 ÷ 已赛场次</div>
+<p>本赛季的实际表现，你每轮更新一次积分和场次即可。</p>
+</div>
+<ul>
+  <li>通常赛季进行到一半时，当前PPG已经很有说服力</li>
+  <li>但如果两队已赛场次差距过大（比如主队踢了18场，客队只踢了14场），需要留意 <span class="badge badge-o">⚠️ 场次差</span> 标记</li>
+</ul>
+
+<hr style="border:none;border-top:2px solid #a8c8ac;margin:24px 0;">
+
+<h2>四、线性过渡：如何合成有效PPG</h2>
+
+<p>有效PPG是 <strong>先验PPG 和 当前PPG 的加权平均</strong>，权重随轮次变化：</p>
+
+<table>
+  <tr><th>轮次</th><th>先验权重</th><th>当前权重</th><th>含义</th></tr>
+  <tr><td>R1 ~ R4</td><td>100%</td><td>0%</td><td>完全依靠上赛季印象</td></tr>
+  <tr><td>R5</td><td>80%</td><td>20%</td><td>本赛季数据开始加入，但只占小头</td></tr>
+  <tr><td>R6</td><td>60%</td><td>40%</td><td>五五开过渡</td></tr>
+  <tr><td>R7</td><td>40%</td><td>60%</td><td>本赛季开始主导</td></tr>
+  <tr><td>R8</td><td>20%</td><td>80%</td><td>接近全用本赛季</td></tr>
+  <tr><td>R9+</td><td>0%</td><td>100%</td><td>完全使用本赛季数据</td></tr>
+</table>
+
+<p>公式：</p>
+<div class="highlight">
+<p class="formula">if R ≤ 4: 有效PPG = 先验PPG</p>
+<p class="formula">else: weight = max(0, 1.0 - (R-4) × 0.2)</p>
+<p class="formula">有效PPG = weight × 先验PPG + (1-weight) × 当前PPG</p>
+</div>
+
+<div class="step">
+<span class="step-num">过渡示例</span><br>
+某队先验PPG=2.211（上赛季第2），前8轮拿了10分（当前PPG=10÷8=1.250），第8轮时：<br>
+weight = max(0, 1.0 - (8-4)×0.2) = max(0, 0.2) = 0.2<br>
+有效PPG = 0.2×2.211 + 0.8×1.250 = 0.442 + 1.000 = <strong>1.442</strong><br>
+解释：前8轮表现确实不佳（1.250），但上赛季的底子在R8时仍保留20%的权重，有效PPG为1.442，介于两者之间。到第9轮以后先验权重归0，有效PPG=当前PPG=1.250。
+</div>
+
+<hr style="border:none;border-top:2px solid #a8c8ac;margin:24px 0;">
+
+<h2>五、六档强弱判定</h2>
+
+<p>比较两队有效PPG，计算分差，然后归档。</p>
+
+<div class="highlight">
+<div class="title">PPG差 = 主队有效PPG − 客队有效PPG</div>
+</div>
+
+<h3>5.1 PPG差 → 档位（阈值表）</h3>
+
+<table>
+  <tr><th>档</th><th>PPG差范围</th><th>38轮等效分差</th><th>标签</th></tr>
+  <tr><td><span class="tag t0">0</span></td><td>0</td><td>0</td><td>同分</td></tr>
+  <tr><td><span class="tag t1">1</span></td><td>±0.01 ~ ±0.12</td><td>±1 ~ ±5</td><td>同等偏主/偏客</td></tr>
+  <tr><td><span class="tag t2">2</span></td><td>±0.12 ~ ±0.30</td><td>±6 ~ ±10</td><td>略优偏主/偏客</td></tr>
+  <tr><td><span class="tag t3">3</span></td><td>±0.30 ~ ±0.60</td><td>±11 ~ ±22</td><td>较优偏主/偏客</td></tr>
+  <tr><td><span class="tag t4">4</span></td><td>±0.60 ~ ±1.10</td><td>±23 ~ ±42</td><td>明显优势（主/客）</td></tr>
+  <tr><td><span class="tag t5">5</span></td><td>&gt; ±1.10</td><td>&gt; ±42</td><td>超优偏主/偏客</td></tr>
+</table>
+
+<p><strong>边界规则</strong>：遇到边界值时向上取整。例如PPG差=0.12，归档到档2（略优）；PPG差=0.30，归档到档3（较优）。</p>
+
+<h3>5.2 档位 → 梯队差距（对照表）</h3>
+
+<table>
+  <tr><th>档</th><th>PPG差区间</th><th>梯队差距含义</th><th>举例（主 vs 客）</th></tr>
+  <tr><td><span class="tag t0">0</span></td><td>0</td><td>同梯队内部</td><td>中游vs中游（1.30 vs 1.30）</td></tr>
+  <tr><td><span class="tag t1">1</span></td><td>±0.01 ~ ±0.12</td><td>相邻梯队交界处</td><td>争冠vs欧冠边缘（2.21 vs 2.10）</td></tr>
+  <tr><td><span class="tag t2">2</span></td><td>±0.12 ~ ±0.30</td><td>跨1个梯队</td><td>欧冠vs欧战（1.80 vs 1.55）</td></tr>
+  <tr><td><span class="tag t3">3</span></td><td>±0.30 ~ ±0.60</td><td>跨2个梯队</td><td>争冠vs欧战（2.21 vs 1.65）</td></tr>
+  <tr><td><span class="tag t4">4</span></td><td>±0.60 ~ ±1.10</td><td>跨3个梯队</td><td>欧冠vs保级挣扎（1.80 vs 0.95）</td></tr>
+  <tr><td><span class="tag t5">5</span></td><td>&gt; ±1.10</td><td>断档级差</td><td>争冠vs降级（2.21 vs 0.75）</td></tr>
+</table>
+
+<p><strong>说明</strong>：梯队差距是对档位的实际比赛含义的解释，不是精确一对一的数学映射。档位基于两队PPG差判定，梯队基于每队绝对PPG定位。两者之间存在约半个档位的自然偏移（例如争冠vs欧战理论跨约2个梯队，但PPG差约0.68落在档4区间），这是由梯队PPG范围边界重叠导致的正常现象。</p>
+
+<div class="step">
+<span class="step-num">归档示例</span><br>
+主队有效PPG = 2.211，客队有效PPG = 0.895<br>
+PPG差 = 2.211 − 0.895 = <strong>1.316</strong><br>
+1.316 &gt; 1.10 → <strong>档5</strong>，标签"超优偏主"<br>
+38轮等效分差 = 1.316 × 38 ≈ <strong>+50分</strong><br>
+梯队差距：争冠级 vs 保级挣扎级，差3+个梯队 → 对照表 → 断档级差
+</div>
+
+<div class="step">
+<span class="step-num">归档示例2（客队优势）</span><br>
+主队有效PPG = 1.050，客队有效PPG = 1.350<br>
+PPG差 = 1.050 − 1.350 = <strong>−0.300</strong><br>
+abs(0.300) → 归档档3，标签"较优偏客"<br>
+38轮等效分差 = −0.300 × 38 ≈ <strong>−11分</strong><br>
+梯队差距：保级挣扎 vs 中游，跨约1.5个梯队 → 对照表 → 跨2个梯队
+</div>
+
+<hr style="border:none;border-top:2px solid #a8c8ac;margin:24px 0;">
+
+<h2>六、联赛梯队映射</h2>
+
+<p>每支球队的绝对PPG对应一个联赛梯队，用于判断该队自身所处的实力层级：</p>
+
+<table>
+  <tr><th>梯队</th><th>名次区间</th><th>PPG范围</th><th>38轮等效分</th><th>说明</th></tr>
+  <tr><td>争冠</td><td>1-2</td><td>2.10 ~ 2.50</td><td>80~95分</td><td>争冠级</td></tr>
+  <tr><td>欧冠</td><td>3-4</td><td>1.75 ~ 2.05</td><td>67~78分</td><td>欧冠资格线</td></tr>
+  <tr><td>欧战</td><td>5-7</td><td>1.50 ~ 1.75</td><td>57~67分</td><td>欧联/欧协区间</td></tr>
+  <tr><td>中游</td><td>8-13</td><td>1.20 ~ 1.50</td><td>46~57分</td><td>保级无忧</td></tr>
+  <tr><td>保级挣扎</td><td>14-17</td><td>0.85 ~ 1.20</td><td>32~46分</td><td>保级战核心区</td></tr>
+  <tr><td>降级</td><td>18-20</td><td>0.50 ~ 0.85</td><td>19~32分</td><td>直降区</td></tr>
+</table>
+
+<p>查询方法：算出该队的有效PPG后，看落在哪个PPG范围，即为该队的联赛梯队。例如有效PPG=2.211 → 争冠级；有效PPG=0.895 → 保级挣扎级。</p>
+
+<hr style="border:none;border-top:2px solid #a8c8ac;margin:24px 0;">
+
+<h2>七、输出解读</h2>
+
+<p>在综合模型中，积分模型的输出以以下形式展示：</p>
+
+<h3>7.1 积分档位徽章</h3>
+<p>彩色徽章直接显示档位编号和简称：</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;">
+  <span class="tag t0">档0 同分</span>
+  <span class="tag t1">档1 同等</span>
+  <span class="tag t2">档2 略优</span>
+  <span class="tag t3">档3 较优</span>
+  <span class="tag t4">档4 明显</span>
+  <span class="tag t5">档5 超优</span>
+</div>
+
+<h3>7.2 有效PPG数值</h3>
+<p>两队各自的`有效PPG`精确到小数点后3位，分别以蓝色（主）和红色（客）显示。这个数值就是经过线性过渡后的最终PPG，直接用于计算分差。</p>
+
+<h3>7.3 详细过程文字</h3>
+<p>灰色底色的文字区域逐行列出了积分模型的关键中间值：</p>
+<ul>
+  <li>档位标签和方向（偏主/偏客/=）</li>
+  <li>等效38轮分差</li>
+  <li>先验PPG和当前PPG（分别显示，方便你判断"当前表现是否跟上赛季有差异"）</li>
+  <li>升班马标注（如适用）</li>
+  <li>场次差 ⚠️ 标记（如适用）</li>
+</ul>
+
+<hr style="border:none;border-top:2px solid #a8c8ac;margin:24px 0;">
+
+<h2>七、需要留意的情况</h2>
+
+<h3>8.1 两队已赛场次不等</h3>
+<p>当场次差≥2时，工具自动显示 <span class="badge badge-o">⚠️ 场次差=3</span> 标记。提示当前PPG的可比性下降——赛程进度不同可能导致PPG被高估或低估。</p>
+<p><strong>例子</strong>：主队踢了18场（42分，PPG=2.333），客队踢了15场（35分，PPG=2.333），PPG相同但客队少踢了3场。如果客队后面3场对手都不强，其实际水平可能略高于主队。</p>
+
+<h3>8.2 升班马</h3>
+<p>上赛季积分=0的球队。赛季初（R≤10）使用参照PPG（默认1.05）作为先验。这个值相当于英超保级挣扎区（14-17名）中游水平。</p>
+<p><strong>如果你认为当年升班马整体较强或较弱</strong>，可以手动调整"升班马参照PPG"值。默认1.05是基于近4季数据的均值。</p>
+
+<h3>8.3 赛季初（R≤4）</h3>
+<p>完全使用先验PPG。这时的"档位"反映的是上赛季的实力对比。比如前4轮的曼城vs诺维奇，即使曼城开局2连败，模型仍然认为曼城远强于诺维奇——因为4场数据不足以推翻上赛季的结论。</p>
+
+<h3>8.4 赛季末（R≥30）</h3>
+<p>完全使用当前PPG。此时的"有效PPG"已经和你直接看积分榜几乎一致，但多了一个"档位"的归一化标签让你快速判断差距量级。</p>
+
+<hr style="border:none;border-top:2px solid #a8c8ac;margin:24px 0;">
+
+<h2>八、常见问题</h2>
+
+<h3>PPT差档位和"联赛梯队"有什么区别？</h3>
+<p>档位是<strong>两队的相对差距</strong>，梯队是<strong>每队的绝对位置</strong>。档5可能由争冠vs降级产生（梯队差4），也可能由欧冠vs保级产生（梯队差3）。梯队映射是一个额外参考，帮你理解这个档位的实际比赛含义。</p>
+
+<h3>升班马参照值能改吗？怎么知道该改多少？</h3>
+<p>可以改。默认1.05是近4季英超升班马PPG均值。如果你当年统计发现升班马整体PPG有显著差异（比如当季3支升班马都很强或都很弱），可以手动调。具体值需要你自己查数据。</p>
+
+<h3>为什么用38轮等效分差？</h3>
+<p>PPG是小数值（0~3之间），不够直观。乘以38轮后变成"一个赛季的总分差距"，更贴近日常看积分的习惯。比如"档4 = ±23~42分"，你会立刻意识到这差不多是"曼城比阿森纳多拿30分"的概念，比"PPG差0.79"更直观。</p>
+
+<h3>连续两年升班马（如诺维奇这种来回升降级的）怎么处理？</h3>
+<p>填上赛季积分=0即可。升降机球队在R≤10时会获得参照PPG（1.05）作为先验。如果该队实际水平明显高于普通升班马（比如它本身就是来回升降级的熟客），你可以手动调高参照值。</p>
+
+<h3>模型能处理中途扣分（如埃弗顿2023被扣10分）吗？</h3>
+<p>不能自动处理。被扣分是联赛官方处罚，不是球队实力问题。如果你认为扣分扭曲了当前PPG，请在输入"当前积分"时使用扣分前的实际比赛积分。工具只按你填入的数字计算。</p>
+
+</div>
+</body>
+</html>
